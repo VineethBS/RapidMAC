@@ -42,6 +42,9 @@ class RAPMACNode_Expression(RAPMACNode):
         self.grNode = RAPMACGraphicsNode(self)
         self.content.expression.textChanged.connect(self.onInputChanged)
 
+    def get_code_string(self):
+        return self.content.expression.text() + ";"
+
     def evalImplementation(self):
         pass
 
@@ -106,6 +109,9 @@ class RAPMACNode_Variable(RAPMACNode):
         self.grNode = RAPMAC_Variable_GraphicsNode(self)
         self.content.expression.textChanged.connect(self.onInputChanged)
         self.content.variable_name.textChanged.connect(self.onInputChanged)
+
+    def get_code_string(self):
+        return self.content.expression.text() + " " + self.content.variable_name.text() + ";"
 
     def evalImplementation(self):
         pass

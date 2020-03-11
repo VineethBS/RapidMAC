@@ -356,18 +356,20 @@ class Node(Serializable):
                 other_nodes.append(other_node)
         return other_nodes
 
-    def generate_code(self) -> None:
-        print(self.op_title)
-        print(self.outputs)
+    def generate_code(self, code) -> None:
+        code.append(self.get_code_string())
         if self.outputs == []: return
         # we are assuming that there can only be one output edge
         if len(self.outputs[0].edges) == 0: return
         output_edge = self.outputs[0].edges[0]
-        if output_edge.edge_codetype == EDGE_TYPE_CONTAINS: print("Contains")
-        if output_edge.edge_codetype == EDGE_TYPE_FOLLOWS: print("Follows")
         next_node = output_edge.getOtherSocket(self).node
-        next_node.generate_code()
-
+        if output_edge.edge_codetype == EDGE_TYPE_CONTAINS: 
+            code.append("{")
+            next_node.generate_code(code)
+            code.append("}")
+        if output_edge.edge_codetype == EDGE_TYPE_FOLLOWS: 
+            next_node.generate_code(code)
+        
     def getInput(self, index:int=0) -> 'Node':
         """
         Get the **first**  `Node` connected to the  Input specified by `index`

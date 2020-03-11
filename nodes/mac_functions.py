@@ -27,6 +27,9 @@ class Init_Node(RAPMACNode):
     def evalImplementation(self):
         pass
 
+    def get_code_string(self):
+        return "init()"
+
 @register_node(OP_NODE_SEND_PACKET)
 class SendPacket_Node(RAPMACNode):
     icon = "icons/in.png"
@@ -34,7 +37,7 @@ class SendPacket_Node(RAPMACNode):
     op_title = "Send Packet"
     content_label_objname = "mac_send_packet"
     node_type = NODE_TYPE_START
-    
+
     def __init__(self, scene):
         super().__init__(scene, inputs=[], outputs=[1])
         self.eval()
@@ -45,3 +48,6 @@ class SendPacket_Node(RAPMACNode):
 
     def evalImplementation(self):
         pass
+
+    def get_code_string(self):
+        return "send_packet()"

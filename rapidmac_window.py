@@ -132,13 +132,18 @@ class RapidMACWindow(NodeEditorWindow):
     def generate_macdriver(self):
         nodes_in_scene = self.mdiArea.currentSubWindow().widget().scene.nodes
         starter_nodes = []
+        generated_code = []
         for node in nodes_in_scene:
             if node.node_type == NODE_TYPE_START:
                 starter_nodes.append(node)
 
         for node in starter_nodes:
-            node.generate_code()
+            generated_code_for_node = []
+            node.generate_code(generated_code_for_node)
+            generated_code.append(generated_code_for_node)
 
+        print(generated_code)
+        
     def about(self):
         QMessageBox.about(self, "RapidMAC prototyper",
                 "For rapid prototyping of multiple access control (MAC) protocols"
