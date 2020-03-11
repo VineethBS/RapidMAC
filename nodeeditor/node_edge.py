@@ -9,6 +9,9 @@ from nodeeditor.utils import dumpException
 EDGE_TYPE_DIRECT = 1        #:
 EDGE_TYPE_BEZIER = 2        #:
 
+EDGE_TYPE_CONTAINS = 3
+EDGE_TYPE_FOLLOWS = 4
+
 DEBUG = False
 
 
@@ -16,7 +19,7 @@ class Edge(Serializable):
     """
     Class for representing Edge in NodeEditor.
     """
-    def __init__(self, scene:'Scene', start_socket:Socket=None, end_socket:Socket=None, edge_type=EDGE_TYPE_DIRECT):
+    def __init__(self, scene:'Scene', start_socket:Socket=None, end_socket:Socket=None, edge_type=EDGE_TYPE_DIRECT, edgecode_type = EDGE_TYPE_FOLLOWS):
         """
 
         :param scene: Reference to the :py:class:`~nodeeditor.node_scene.Scene`
@@ -42,6 +45,7 @@ class Edge(Serializable):
         self.start_socket = start_socket
         self.end_socket = end_socket
         self.edge_type = edge_type
+        self.edge_codetype = edgecode_type
 
         self.scene.addEdge(self)
 
@@ -214,6 +218,7 @@ class Edge(Serializable):
             ('edge_type', self.edge_type),
             ('start', self.start_socket.id),
             ('end', self.end_socket.id),
+            ('edgecode_type', self.edge_codetype)
         ])
 
     def deserialize(self, data:dict, hashmap:dict={}, restore_id:bool=True) -> bool:
@@ -221,3 +226,4 @@ class Edge(Serializable):
         self.start_socket = hashmap[data['start']]
         self.end_socket = hashmap[data['end']]
         self.edge_type = data['edge_type']
+        self.edge_codetype = data['edgecode_type']

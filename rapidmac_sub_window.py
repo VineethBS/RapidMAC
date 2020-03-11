@@ -160,6 +160,10 @@ class RAPMACSubWindow(NodeEditorWidget):
     def handleEdgeContextMenu(self, event):
         if DEBUG_CONTEXT: print("CONTEXT: EDGE")
         context_menu = QMenu(self)
+
+        containsAct = context_menu.addAction("Contains ...")
+        followsAct = context_menu.addAction("Follows ...")
+        context_menu.addSeparator()
         bezierAct = context_menu.addAction("Bezier Edge")
         directAct = context_menu.addAction("Direct Edge")
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
