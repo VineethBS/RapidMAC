@@ -5,12 +5,18 @@ A module containing NodeEditor's class for representing Edge and Edge Type Const
 from nodeeditor.node_graphics_edge import *
 from nodeeditor.utils import dumpException
 
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+
 
 EDGE_TYPE_DIRECT = 1        #:
 EDGE_TYPE_BEZIER = 2        #:
 
 EDGE_TYPE_CONTAINS = 3
 EDGE_TYPE_FOLLOWS = 4
+
+EDGE_COLOR_CONTAINS = QColor("#FF0000")
+EDGE_COLOR_FOLLOWS = QColor("#001000")
 
 DEBUG = False
 
@@ -110,6 +116,7 @@ class Edge(Serializable):
         """
         return self._edge_type
 
+   
     @edge_type.setter
     def edge_type(self, value):
         if hasattr(self, 'grEdge') and self.grEdge is not None:
@@ -127,6 +134,17 @@ class Edge(Serializable):
 
         if self.start_socket is not None:
             self.updatePositions()
+
+    def set_edgecolor(self):
+        if hasattr(self, 'grEdge') and self.grEdge is not None:
+            if self.edge_codetype == EDGE_TYPE_CONTAINS:
+                self.grEdge._color = EDGE_COLOR_CONTAINS
+            if self.edge_codetype == EDGE_TYPE_FOLLOWS: 
+                self.grEdge._color = EDGE_COLOR_FOLLOWS
+
+            self.grEdge._pen = QPen(self.grEdge._color)
+            self.grEdge._pen.setWidthF(3.0)
+            self.grEdge.update()
 
 
     def getOtherSocket(self, known_socket:Socket):

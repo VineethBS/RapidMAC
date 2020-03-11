@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from rapidmac_conf import *
 from nodeeditor.node_editor_widget import NodeEditorWidget
 from rapidmac_node_base import *
-from nodeeditor.node_edge import EDGE_TYPE_DIRECT, EDGE_TYPE_BEZIER
+from nodeeditor.node_edge import EDGE_TYPE_DIRECT, EDGE_TYPE_BEZIER, EDGE_TYPE_CONTAINS, EDGE_TYPE_FOLLOWS
 from nodeeditor.node_graphics_view import MODE_EDGE_DRAG
 from nodeeditor.utils import dumpException
 
@@ -175,6 +175,13 @@ class RAPMACSubWindow(NodeEditorWidget):
 
         if selected and action == bezierAct: selected.edge_type = EDGE_TYPE_BEZIER
         if selected and action == directAct: selected.edge_type = EDGE_TYPE_DIRECT
+        if selected and action == containsAct:
+            selected.edge_codetype = EDGE_TYPE_CONTAINS
+            selected.set_edgecolor()
+
+        if selected and action == followsAct: 
+            selected.edge_codetype = EDGE_TYPE_FOLLOWS
+            selected.set_edgecolor()
 
 
     def handleNewNodeContextMenu(self, event):
