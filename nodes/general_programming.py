@@ -30,6 +30,7 @@ class RAPMACNode_Expression(RAPMACNode):
     icon = "icons/in.png"
     op_code = OP_NODE_EXPRESSION
     op_title = "Expression"
+    node_type = NODE_TYPE_NORMAL
     content_label_objname = "node_expression"
 
     def __init__(self, scene):
@@ -94,9 +95,10 @@ class RAPMACNode_Variable(RAPMACNode):
     op_code = OP_NODE_VARIABLE
     op_title = "Variable "
     content_label_objname = "node_variable"
+    node_type = NODE_TYPE_NORMAL
 
     def __init__(self, scene):
-        super().__init__(scene, inputs=[], outputs=[3])
+        super().__init__(scene, inputs=[1], outputs=[1])
         self.eval()
 
     def initInnerClasses(self):

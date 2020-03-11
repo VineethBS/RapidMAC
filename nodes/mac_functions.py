@@ -14,6 +14,7 @@ class Init_Node(RAPMACNode):
     op_code = OP_NODE_INIT
     op_title = "Init"
     content_label_objname = "mac_init"
+    node_type = NODE_TYPE_START
 
     def __init__(self, scene):
         super().__init__(scene, inputs=[], outputs=[1])
@@ -32,7 +33,8 @@ class SendPacket_Node(RAPMACNode):
     op_code = OP_NODE_SEND_PACKET
     op_title = "Send Packet"
     content_label_objname = "mac_send_packet"
-
+    node_type = NODE_TYPE_START
+    
     def __init__(self, scene):
         super().__init__(scene, inputs=[], outputs=[1])
         self.eval()

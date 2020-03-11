@@ -6,6 +6,7 @@ from nodeeditor.node_graphics_node import QDMGraphicsNode
 from nodeeditor.node_content_widget import QDMNodeContentWidget
 from nodeeditor.node_socket import *
 from nodeeditor.utils import dumpException
+from nodeeditor.node_edge import EDGE_TYPE_CONTAINS, EDGE_TYPE_FOLLOWS
 
 DEBUG = False
 
@@ -105,7 +106,7 @@ class Node(Serializable):
         self.input_socket_position = LEFT_BOTTOM
         self.output_socket_position = RIGHT_TOP
         self.input_multi_edged = False
-        self.output_multi_edged = True
+        self.output_multi_edged = False
 
     def initSockets(self, inputs:list, outputs:list, reset:bool=True):
         """
@@ -355,6 +356,17 @@ class Node(Serializable):
                 other_nodes.append(other_node)
         return other_nodes
 
+    def generate_code(self) -> None:
+        print(self.op_title)
+        print(self.outputs)
+        if self.outputs == []: return
+        # we are assuming that there can only be one output edge
+        if len(self.outputs[0].edges) == 0: return
+        output_edge = self.outputs[0].edges[0]
+        if output_edge.edge_codetype == EDGE_TYPE_CONTAINS: print("Contains")
+        if output_edge.edge_codetype == EDGE_TYPE_FOLLOWS: print("Follows")
+        next_node = output_edge.getOtherSocket(self).node
+        next_node.generate_code()
 
     def getInput(self, index:int=0) -> 'Node':
         """

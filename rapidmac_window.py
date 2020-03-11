@@ -130,7 +130,14 @@ class RapidMACWindow(NodeEditorWindow):
         pass
 
     def generate_macdriver(self):
-        pass
+        nodes_in_scene = self.mdiArea.currentSubWindow().widget().scene.nodes
+        starter_nodes = []
+        for node in nodes_in_scene:
+            if node.node_type == NODE_TYPE_START:
+                starter_nodes.append(node)
+
+        for node in starter_nodes:
+            node.generate_code()
 
     def about(self):
         QMessageBox.about(self, "RapidMAC prototyper",
