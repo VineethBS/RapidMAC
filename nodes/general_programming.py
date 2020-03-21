@@ -3,6 +3,101 @@ from rapidmac_conf import *
 from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
 ######################################################################
+############################# Else ###################################
+######################################################################
+class RAPMAC_Else_Dialog(QDialog):
+    def __init__(self, parent = None):
+        super(RAPMAC_Else_Dialog, self).__init__(parent)
+        
+        self.parent = parent
+
+        self.setWindowTitle("Else")
+        
+        self.else_else = QLabel("else ", self)
+        self.else_start = QLabel("{")
+        self.else_end = QLabel("}")
+
+        self.else_body = QPlainTextEdit(self)
+        
+        self.else_body.setPlainText(self.parent.else_body)
+        self.else_body.setStyleSheet("color:white")
+
+        gridlayout = QGridLayout()
+        gridlayout.addWidget(self.else_else, 0, 0, 1, 1)
+        gridlayout.addWidget(self.else_start,1,0,1,1)
+        gridlayout.addWidget(self.else_body,2,0,3,2)
+        gridlayout.addWidget(self.else_end, 5, 0, 1, 1)
+        
+        qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonbox = QDialogButtonBox(qbtn)
+        buttonbox.accepted.connect(self.accept)
+        buttonbox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addLayout(gridlayout)
+        layout.addWidget(buttonbox)
+        
+        self.setLayout(layout)
+
+    def accept(self):
+        self.done(self.Accepted)
+        self.parent.else_body = self.else_body.toPlainText()
+
+class RAPMAC_Else_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.else_body = ""
+
+        self.edit = QPushButton("Edit ...", self)
+        self.edit.setObjectName(self.node.content_label_objname)
+        self.edit.clicked.connect(self.onEditButtonClick)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.edit)
+        self.setLayout(layout)
+
+    def onEditButtonClick(self, s):
+        dlg = RAPMAC_Else_Dialog(self) 
+        dlg.exec_()
+        
+    def serialize(self):
+        res = super().serialize()
+        res['else_body'] = self.else_body
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            self.else_body = data['else_body']
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_ELSE)
+class RAPMACNode_Else(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_ELSE
+    op_title = "Else"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_else"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_Else_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+        self.grNode.width = 160
+        self.grNode.height = 100
+
+    def get_code_string(self):
+        return "else {" + self.content.else_body + "}\n"
+
+    def evalImplementation(self):
+        pass
+    
+######################################################################
 ############################### If ###################################
 ######################################################################
 class RAPMAC_If_Dialog(QDialog):
