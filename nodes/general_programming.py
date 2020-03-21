@@ -4,6 +4,53 @@ from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
 
 ######################################################################
+###################### Preprocessor #DEFINE ##########################
+######################################################################
+class RAPMAC_HashDefine_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.expression = QLineEdit("", self)
+        self.expression.setAlignment(Qt.AlignLeft)
+        self.expression.setObjectName(self.node.content_label_objname)
+    
+    def serialize(self):
+        res = super().serialize()
+        res['expression'] = self.expression.text()
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            value = data['expression']
+            self.expression.setText(value)
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_DEFINE)
+class RAPMACNode_Expression(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_DEFINE
+    op_title = "HashDefine"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_hash_define"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_HashDefine_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+        self.content.expression.textChanged.connect(self.onInputChanged)
+
+    def get_code_string(self):
+        return "#DEFINE " + self.content.expression.text() + ";"
+
+    def evalImplementation(self):
+        pass
+
+######################################################################
 ############################ Comments ################################
 ######################################################################
 class RAPMAC_Comment_Dialog(QDialog):
