@@ -2,6 +2,112 @@ from PyQt5.QtCore import *
 from rapidmac_conf import *
 from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
+######################################################################
+############################ For loop ################################
+######################################################################
+class RAPMAC_For_Dialog(QDialog):
+    def __init__(self, parent = None):
+        super(RAPMAC_For_Dialog, self).__init__(parent)
+        
+        self.parent = parent
+
+        self.setWindowTitle("For loop")
+        
+        self.for_for = QLabel("for ", self)
+        self.for_start = QLabel("{")
+        self.for_end = QLabel("}")
+
+        self.for_condition = QLineEdit(self)
+        self.for_body = QPlainTextEdit(self)
+        
+        self.for_condition.setText(self.parent.for_condition)
+        self.for_body.setPlainText(self.parent.for_body)
+        self.for_body.setStyleSheet("color:white")
+
+        gridlayout = QGridLayout()
+        gridlayout.addWidget(self.for_for, 0, 0, 1, 1)
+        gridlayout.addWidget(self.for_condition, 0, 1, 1, 1)
+        gridlayout.addWidget(self.for_start,1,0,1,1)
+        gridlayout.addWidget(self.for_body,2,0,3,2)
+        gridlayout.addWidget(self.for_end, 5, 0, 1, 1)
+        
+        qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonbox = QDialogButtonBox(qbtn)
+        buttonbox.accepted.connect(self.accept)
+        buttonbox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addLayout(gridlayout)
+        layout.addWidget(buttonbox)
+        
+        self.setLayout(layout)
+
+    def accept(self):
+        self.done(self.Accepted)
+        self.parent.for_condition = self.for_condition.text()
+        self.parent.for_body = self.for_body.toPlainText()
+
+class RAPMAC_For_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.for_condition = ""
+        self.for_body = ""
+
+        self.label = QLabel(self)
+        self.label.setWordWrap(True)
+        self.label.setText("for (" + self.for_condition + ")")
+        self.edit = QPushButton("Edit ...", self)
+        self.edit.setObjectName(self.node.content_label_objname)
+        self.edit.clicked.connect(self.onEditButtonClick)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.edit)
+        self.setLayout(layout)
+
+    def onEditButtonClick(self, s):
+        dlg = RAPMAC_For_Dialog(self) 
+        dlg.exec_()
+        self.label.setText("for (" + self.for_condition + ")")
+        
+    def serialize(self):
+        res = super().serialize()
+        res['for_condition'] = self.for_condition
+        res['for_body'] = self.for_body
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            self.for_condition = data['for_condition']
+            self.for_body = data['for_body']
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_FOR)
+class RAPMACNode_For(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_FOR
+    op_title = "For loop"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_for"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_For_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+        self.grNode.width = 160
+        self.grNode.height = 100
+
+    def get_code_string(self):
+        return "for (" + self.content.for_condition + ") \n {" + self.content.for_body + "}\n"
+
+    def evalImplementation(self):
+        pass
 
 
 ######################################################################
