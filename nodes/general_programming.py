@@ -2,6 +2,97 @@ from PyQt5.QtCore import *
 from rapidmac_conf import *
 from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
+
+######################################################################
+############################ Comments ################################
+######################################################################
+class RAPMAC_Comment_Dialog(QDialog):
+    def __init__(self, parent = None):
+        super(RAPMAC_Comment_Dialog, self).__init__(parent)
+        
+        self.parent = parent
+
+        self.setWindowTitle("Edit multiline expression")
+        self.textbox = QPlainTextEdit(self)
+        self.textbox.setPlainText(self.parent.text)
+        self.textbox.setStyleSheet("background-color:white")
+        
+        qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonbox = QDialogButtonBox(qbtn)
+        buttonbox.accepted.connect(self.accept)
+        buttonbox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addWidget(self.textbox)
+        layout.addWidget(buttonbox)
+        
+        self.setLayout(layout)
+
+    def accept(self):
+        self.done(self.Accepted)
+        self.parent.text = self.textbox.toPlainText()
+        
+class RAPMAC_Comment_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.text = ""
+        self.label = QLabel(self)
+        self.label.setWordWrap(True)
+        self.label.setText(self.text)
+        self.edit = QPushButton("Edit ...", self)
+        self.edit.setObjectName(self.node.content_label_objname)
+        self.edit.clicked.connect(self.onEditButtonClick)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.edit)
+        self.setLayout(layout)
+
+
+    def onEditButtonClick(self, s):
+        dlg = RAPMAC_Comment_Dialog(self) 
+        dlg.exec_()
+        self.label.setText(self.text)
+        
+    def serialize(self):
+        res = super().serialize()
+        res['text'] = self.text
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            value = data['text']
+            self.text = value
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+
+@register_node(OP_NODE_COMMENT)
+class RAPMACNode_Comment(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_COMMENT
+    op_title = "Comment"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_comment"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[], outputs=[])
+        self.eval()
+        self.width = 160
+        self.height = 140
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_Comment_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+
+    def get_code_string(self):
+        return "/* \n" + self.content.text + "\n/*"
+
+    def evalImplementation(self):
+        pass
+
 ######################################################################
 ##################### Multi Line Expression ##########################
 ######################################################################
