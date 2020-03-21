@@ -3,6 +3,82 @@ from rapidmac_conf import *
 from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
 
+
+######################################################################
+########################## While loop ################################
+######################################################################
+
+
+######################################################################
+##################### Preprocessor #INCLUDE ##########################
+######################################################################
+# TODO - all classes - code generation can be moved into the content class
+class RAPMAC_HashInclude_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.expression = QLineEdit("", self)
+        self.expression.width = 100
+        self.expression.setAlignment(Qt.AlignLeft)
+        self.expression.setObjectName(self.node.content_label_objname)
+
+        self.usequotes = QRadioButton("Use \" \"")
+        self.usequotes.setStyleSheet("color:yellow")
+        self.useangular = QRadioButton("Use < > ")
+        self.useangular.setStyleSheet("color:yellow")
+
+        gridlayout = QGridLayout()
+        gridlayout.addWidget(self.expression, 0, 0, 1, 2)
+        gridlayout.addWidget(self.usequotes, 1, 0, 1, 1)
+        gridlayout.addWidget(self.useangular, 1, 1, 1, 1)
+        self.setLayout(gridlayout)
+
+    def serialize(self):
+        res = super().serialize()
+        res['expression'] = self.expression.text()
+        res['usequotes'] = self.usequotes.isChecked()
+        res['useangular'] = self.useangular.isChecked()
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            value = data['expression']
+            self.expression.setText(value)
+            if data['usequotes']:
+                self.usequotes.setChecked()
+            if data['useangular']:
+                self.useangular.setChecked()
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_INCLUDE)
+class RAPMACNode_Include(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_INCLUDE
+    op_title = "# INCLUDE"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_hash_include"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_HashInclude_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+        self.grNode.width = 160
+        self.grNode.height = 100
+
+    def get_code_string(self):
+        if self.content.useangular.isChecked():
+            return "#INCLUDE <" + self.content.expression.text() + ">"
+        if self.content.usequotes.isChecked():
+            return "#INCLUDE \"" + self.content.expression.text() + "\""
+
+    def evalImplementation(self):
+        pass
+
 ######################################################################
 ###################### Preprocessor #DEFINE ##########################
 ######################################################################
@@ -28,10 +104,10 @@ class RAPMAC_HashDefine_Content(QDMNodeContentWidget):
         return res
 
 @register_node(OP_NODE_DEFINE)
-class RAPMACNode_Expression(RAPMACNode):
+class RAPMACNode_Define(RAPMACNode):
     icon = "icons/in.png"
     op_code = OP_NODE_DEFINE
-    op_title = "HashDefine"
+    op_title = "# DEFINE"
     node_type = NODE_TYPE_NORMAL
     content_label_objname = "node_hash_define"
 
@@ -85,6 +161,8 @@ class RAPMAC_Comment_Content(QDMNodeContentWidget):
         self.label = QLabel(self)
         self.label.setWordWrap(True)
         self.label.setText(self.text)
+        self.label.width = 140
+        self.label.height = 90
         self.edit = QPushButton("Edit ...", self)
         self.edit.setObjectName(self.node.content_label_objname)
         self.edit.clicked.connect(self.onEditButtonClick)
@@ -127,12 +205,12 @@ class RAPMACNode_Comment(RAPMACNode):
     def __init__(self, scene):
         super().__init__(scene, inputs=[], outputs=[])
         self.eval()
-        self.width = 160
-        self.height = 140
 
     def initInnerClasses(self):
         self.content = RAPMAC_Comment_Content(self)
         self.grNode = RAPMACGraphicsNode(self)
+        self.grNode.width = 160
+        self.grNode.height = 120
 
     def get_code_string(self):
         return "/* \n" + self.content.text + "\n/*"
