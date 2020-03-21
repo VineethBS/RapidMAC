@@ -2,8 +2,87 @@ from PyQt5.QtCore import *
 from rapidmac_conf import *
 from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
+######################################################################
+##################### Multi Line Expression ##########################
+######################################################################
 
-#################################### Expression ##################################
+class RAPMAC_MultiLineExpression_Dialog(QDialog):
+    def __init__(self, parent = None):
+        super(RAPMAC_MultiLineExpression_Dialog, self).__init__(parent)
+        
+        self.parent = parent
+
+        self.setWindowTitle("Edit multiline expression")
+        self.textbox = QPlainTextEdit(self)
+        self.textbox.setPlainText(self.parent.text)
+        self.textbox.setStyleSheet("background-color:white")
+        
+        qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonbox = QDialogButtonBox(qbtn)
+        buttonbox.accepted.connect(self.accept)
+        buttonbox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addWidget(self.textbox)
+        layout.addWidget(buttonbox)
+        
+        self.setLayout(layout)
+
+    def accept(self):
+        self.done(self.Accepted)
+        self.parent.text = self.textbox.toPlainText()
+
+class RAPMAC_MultiLineExpression_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.text = ""
+        self.expression = QPushButton("Edit ...", self)
+        self.expression.setObjectName(self.node.content_label_objname)
+        self.expression.clicked.connect(self.onEditButtonClick)
+
+    def onEditButtonClick(self, s):
+        dlg = RAPMAC_MultiLineExpression_Dialog(self) 
+        dlg.exec_()
+        
+    def serialize(self):
+        res = super().serialize()
+        res['text'] = self.text
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            value = data['text']
+            self.text = value
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_MULTILINEEXPRESSION)
+class RAPMACNode_MultiLineExpression(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_MULTILINEEXPRESSION
+    op_title = "Multiline"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_multiline"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_MultiLineExpression_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+
+    def get_code_string(self):
+        return self.content.text
+
+    def evalImplementation(self):
+        pass
+
+######################################################################
+########################### Expression ###############################
+######################################################################
 class RAPMAC_Expression_Content(QDMNodeContentWidget):
     def initUI(self):
         self.expression = QLineEdit("x = y", self)
@@ -48,7 +127,9 @@ class RAPMACNode_Expression(RAPMACNode):
     def evalImplementation(self):
         pass
 
-#################################### Variable ##################################
+######################################################################
+############################## Variable ##############################
+######################################################################
 
 class RAPMAC_Variable_Content(QDMNodeContentWidget):
     def initUI(self):
