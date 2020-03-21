@@ -1,16 +1,16 @@
 {
-    "id": 139987357856080,
+    "id": 139966282115664,
     "scene_width": 64000,
     "scene_height": 64000,
     "nodes": [
         {
-            "id": 139987358014096,
-            "title": "Multiline",
-            "pos_x": -30.0,
-            "pos_y": -157.0,
+            "id": 139966213104592,
+            "title": "While loop",
+            "pos_x": -94.0,
+            "pos_y": -116.0,
             "inputs": [
                 {
-                    "id": 139987358078160,
+                    "id": 139966213168400,
                     "index": 0,
                     "multi_edges": false,
                     "position": 2,
@@ -19,7 +19,7 @@
             ],
             "outputs": [
                 {
-                    "id": 139987358078224,
+                    "id": 139966213168464,
                     "index": 0,
                     "multi_edges": false,
                     "position": 5,
@@ -27,81 +27,36 @@
                 }
             ],
             "content": {
-                "text": ""
+                "while_condition": "x == 0",
+                "while_body": "What is this;\nhow to\n\n\n\n\n\n\n\n\n\n\n\n\n"
             },
-            "op_code": 205
+            "op_code": 212
         },
         {
-            "id": 139987358079120,
-            "title": "Expression",
-            "pos_x": -220.0,
-            "pos_y": -156.0,
-            "inputs": [
-                {
-                    "id": 139987358107664,
-                    "index": 0,
-                    "multi_edges": false,
-                    "position": 2,
-                    "socket_type": 1
-                }
-            ],
+            "id": 139966213234896,
+            "title": "Init",
+            "pos_x": -413.0,
+            "pos_y": -121.0,
+            "inputs": [],
             "outputs": [
                 {
-                    "id": 139987358107728,
+                    "id": 139966213235024,
                     "index": 0,
                     "multi_edges": false,
                     "position": 5,
                     "socket_type": 1
                 }
             ],
-            "content": {
-                "expression": "x = y"
-            },
-            "op_code": 204
-        },
-        {
-            "id": 139987357614288,
-            "title": "Variable ",
-            "pos_x": -414.0,
-            "pos_y": -178.0,
-            "inputs": [
-                {
-                    "id": 139987357614416,
-                    "index": 0,
-                    "multi_edges": false,
-                    "position": 2,
-                    "socket_type": 1
-                }
-            ],
-            "outputs": [
-                {
-                    "id": 139987357614480,
-                    "index": 0,
-                    "multi_edges": false,
-                    "position": 5,
-                    "socket_type": 1
-                }
-            ],
-            "content": {
-                "type": "char",
-                "name": "variable"
-            },
-            "op_code": 203
+            "content": {},
+            "op_code": 101
         }
     ],
     "edges": [
         {
-            "id": 139987358078992,
+            "id": 139966213234768,
             "edge_type": 2,
-            "start": 139987358107728,
-            "end": 139987358078160,
-            "edgecode_type": 4
-        },
-        {
-            "id": 139987357616272,
-            "edge_type": 2,
-            "start": 139987357614480,
-            "end": 139987358107664,
+            "start": 139966213235024,
+            "end": 139966213168400,
             "edgecode_type": 4
         }
     ]

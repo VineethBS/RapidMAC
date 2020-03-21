@@ -7,7 +7,109 @@ from nodeeditor.utils import dumpException
 ######################################################################
 ########################## While loop ################################
 ######################################################################
+class RAPMAC_While_Dialog(QDialog):
+    def __init__(self, parent = None):
+        super(RAPMAC_While_Dialog, self).__init__(parent)
+        
+        self.parent = parent
 
+        self.setWindowTitle("While loop")
+        
+        self.while_while = QLabel("while ", self)
+        self.while_start = QLabel("{")
+        self.while_end = QLabel("}")
+
+        self.while_condition = QLineEdit(self)
+        self.while_body = QPlainTextEdit(self)
+        
+        self.while_condition.setText(self.parent.while_condition)
+        self.while_body.setPlainText(self.parent.while_body)
+        self.while_body.setStyleSheet("color:white")
+
+        gridlayout = QGridLayout()
+        gridlayout.addWidget(self.while_while, 0, 0, 1, 1)
+        gridlayout.addWidget(self.while_condition, 0, 1, 1, 1)
+        gridlayout.addWidget(self.while_start,1,0,1,1)
+        gridlayout.addWidget(self.while_body,2,0,3,2)
+        gridlayout.addWidget(self.while_end, 5, 0, 1, 1)
+        
+        qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonbox = QDialogButtonBox(qbtn)
+        buttonbox.accepted.connect(self.accept)
+        buttonbox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addLayout(gridlayout)
+        layout.addWidget(buttonbox)
+        
+        self.setLayout(layout)
+
+    def accept(self):
+        self.done(self.Accepted)
+        self.parent.while_condition = self.while_condition.text()
+        self.parent.while_body = self.while_body.toPlainText()
+
+class RAPMAC_While_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.while_condition = ""
+        self.while_body = ""
+
+        self.label = QLabel(self)
+        self.label.setWordWrap(True)
+        self.label.setText("while (" + self.while_condition + ")")
+        self.edit = QPushButton("Edit ...", self)
+        self.edit.setObjectName(self.node.content_label_objname)
+        self.edit.clicked.connect(self.onEditButtonClick)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.edit)
+        self.setLayout(layout)
+
+    def onEditButtonClick(self, s):
+        dlg = RAPMAC_While_Dialog(self) 
+        dlg.exec_()
+        self.label.setText("while (" + self.while_condition + ")")
+        
+    def serialize(self):
+        res = super().serialize()
+        res['while_condition'] = self.while_condition
+        res['while_body'] = self.while_body
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            self.while_condition = data['while_condition']
+            self.while_body = data['while_body']
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_WHILE)
+class RAPMACNode_While(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_WHILE
+    op_title = "While loop"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_while"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_While_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+        self.grNode.width = 160
+        self.grNode.height = 100
+
+    def get_code_string(self):
+        return "while (" + self.content.while_condition + ") \n {" + self.content.while_body + "}\n"
+
+    def evalImplementation(self):
+        pass
 
 ######################################################################
 ##################### Preprocessor #INCLUDE ##########################
