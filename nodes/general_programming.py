@@ -12,10 +12,10 @@ class RAPMAC_Comment_Dialog(QDialog):
         
         self.parent = parent
 
-        self.setWindowTitle("Edit multiline expression")
+        self.setWindowTitle("Edit comment")
         self.textbox = QPlainTextEdit(self)
         self.textbox.setPlainText(self.parent.text)
-        self.textbox.setStyleSheet("background-color:white")
+        self.textbox.setStyleSheet("color:white")
         
         qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         buttonbox = QDialogButtonBox(qbtn)
@@ -106,7 +106,7 @@ class RAPMAC_MultiLineExpression_Dialog(QDialog):
         self.setWindowTitle("Edit multiline expression")
         self.textbox = QPlainTextEdit(self)
         self.textbox.setPlainText(self.parent.text)
-        self.textbox.setStyleSheet("background-color:white")
+        self.textbox.setStyleSheet("color:white")
         
         qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         buttonbox = QDialogButtonBox(qbtn)
