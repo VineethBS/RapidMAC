@@ -3,6 +3,114 @@ from rapidmac_conf import *
 from rapidmac_node_base import *
 from nodeeditor.utils import dumpException
 ######################################################################
+############################### If ###################################
+######################################################################
+class RAPMAC_If_Dialog(QDialog):
+    def __init__(self, parent = None):
+        super(RAPMAC_If_Dialog, self).__init__(parent)
+        
+        self.parent = parent
+
+        self.setWindowTitle("If")
+        
+        self.if_if = QLabel("if ", self)
+        self.if_start = QLabel("{")
+        self.if_end = QLabel("}")
+
+        self.if_condition = QLineEdit(self)
+        self.if_body = QPlainTextEdit(self)
+        
+        self.if_condition.setText(self.parent.if_condition)
+        self.if_body.setPlainText(self.parent.if_body)
+        self.if_body.setStyleSheet("color:white")
+
+        gridlayout = QGridLayout()
+        gridlayout.addWidget(self.if_if, 0, 0, 1, 1)
+        gridlayout.addWidget(self.if_condition, 0, 1, 1, 1)
+        gridlayout.addWidget(self.if_start,1,0,1,1)
+        gridlayout.addWidget(self.if_body,2,0,3,2)
+        gridlayout.addWidget(self.if_end, 5, 0, 1, 1)
+        
+        qbtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonbox = QDialogButtonBox(qbtn)
+        buttonbox.accepted.connect(self.accept)
+        buttonbox.rejected.connect(self.reject)
+        
+        layout = QVBoxLayout()
+        layout.addLayout(gridlayout)
+        layout.addWidget(buttonbox)
+        
+        self.setLayout(layout)
+
+    def accept(self):
+        self.done(self.Accepted)
+        self.parent.if_condition = self.if_condition.text()
+        self.parent.if_body = self.if_body.toPlainText()
+
+class RAPMAC_If_Content(QDMNodeContentWidget):
+    def initUI(self):
+        self.if_condition = ""
+        self.if_body = ""
+
+        self.label = QLabel(self)
+        self.label.setWordWrap(True)
+        self.label.setText("if (" + self.if_condition + ")")
+        self.edit = QPushButton("Edit ...", self)
+        self.edit.setObjectName(self.node.content_label_objname)
+        self.edit.clicked.connect(self.onEditButtonClick)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.edit)
+        self.setLayout(layout)
+
+    def onEditButtonClick(self, s):
+        dlg = RAPMAC_If_Dialog(self) 
+        dlg.exec_()
+        self.label.setText("if (" + self.if_condition + ")")
+        
+    def serialize(self):
+        res = super().serialize()
+        res['if_condition'] = self.if_condition
+        res['if_body'] = self.if_body
+        return res
+
+    def deserialize(self, data, hashmap={}):
+        res = super().deserialize(data, hashmap)
+        try:
+            self.if_condition = data['if_condition']
+            self.if_body = data['if_body']
+            return True & res
+        except Exception as e:
+            dumpException(e)
+        return res
+
+@register_node(OP_NODE_IF)
+class RAPMACNode_If(RAPMACNode):
+    icon = "icons/in.png"
+    op_code = OP_NODE_IF
+    op_title = "If"
+    node_type = NODE_TYPE_NORMAL
+    content_label_objname = "node_if"
+
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[1], outputs=[1])
+        self.eval()
+
+    def initInnerClasses(self):
+        self.content = RAPMAC_If_Content(self)
+        self.grNode = RAPMACGraphicsNode(self)
+        self.grNode.width = 160
+        self.grNode.height = 100
+
+    def get_code_string(self):
+        return "if (" + self.content.if_condition + ") \n {" + self.content.if_body + "}\n"
+
+    def evalImplementation(self):
+        pass
+
+
+######################################################################
 ############################ For loop ################################
 ######################################################################
 class RAPMAC_For_Dialog(QDialog):
